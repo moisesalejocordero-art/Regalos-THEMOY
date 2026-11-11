@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPM 1 - Cuentas Gratis de Moisés</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cpm: {
+                            dark: '#0a0b10',
+                            card: '#131622',
+                            border: '#1f2437',
+                            primary: '#6366f1',
+                            accent: '#a855f7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .glass-panel {
+            background: rgba(19, 22, 34, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .neon-glow {
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-cpm-dark text-gray-100 min-h-screen flex flex-col font-sans antialiased">
+    <header class="glass-panel border-b border-cpm-border sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center neon-glow">
+                    <i class="fa-solid fa-gamepad text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm tracking-wide">CPM 1</h1>
+                    <p class="text-[11px] text-indigo-400">Cuentas Gratis de Moisés</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="openAdminModal()" class="text-xs bg-cpm-border hover:bg-indigo-600/30 px-3 py-1.5 rounded-lg transition border border-indigo-500/20">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Admin
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 space-y-6">
+        <!-- SECCIÓN PRINCIPAL / STOCK -->
+        <section class="glass-panel rounded-2xl p-5 neon-glow">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-bold text-base flex items-center">
+                    <i class="fa-solid fa-box-open text-indigo-400 mr-2"></i> Estado de Cuentas
+                </h2>
+                <span id="stock-badge" class="text-xs px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Stock: <span id="stock-count">0</span></span>
+            </div>
+            
+            <div id="claim-area" class="space-y-4">
+                <div class="relative">
+                    <input type="text" id="coupon-input" placeholder="Ingresa tu código de cupón..." class="w-full bg-cpm-dark border border-cpm-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition">
+                    <button onclick="claimAccount()" class="absolute right-1.5 top-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 rounded-lg text-xs font-semibold hover:opacity-90 transition">
+                        Reclamar Cuenta
+                    </button>
+                </div>
+                <div id="claim-result" class="hidden p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-xs space-y-2"></div>
+            </div>
+        </section>
+
+        <!-- SOPORTE CHAT -->
+        <section class="glass-panel rounded-2xl p-5">
+            <h2 class="font-bold text-base mb-3 flex items-center">
+                <i class="fa-solid fa-headset text-purple-400 mr-2"></i> Chat de Soporte
+            </h2>
+            <div id="chat-messages" class="h-48 overflow-y-auto space-y-3 mb-3 pr-2 text-xs"></div>
+            <div class="flex space-x-2">
+                <input type="text" id="chat-input" placeholder="Escribe tu duda o usa /cerrado si eres admin..." class="flex-1 bg-cpm-dark border border-cpm-border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-purple-500">
+                <button onclick="sendChatMessage()" class="bg-purple-600 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-purple-700 transition">Enviar</button>
+            </div>
+        </section>
+         <!-- PANEL ADMINISTRADOR MODAL -->
+        <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="glass-panel w-full max-w-lg rounded-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+                <button onclick="closeAdminModal()" class="absolute right-4 top-4 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+                <div id="admin-login-view" class="space-y-4">
+                    <h3 class="font-bold text-base"><i class="fa-solid fa-lock text-indigo-400 mr-2"></i> Acceso Administrador</h3>
+                    <input type="password" id="admin-pin" placeholder="Contraseña de acceso..." class="w-full bg-cpm-dark border border-cpm-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500">
+                    <button onclick="verifyAdmin()" class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-xl font-semibold text-xs transition">Entrar al Panel</button>
+                </div>
+                <div id="admin-panel-view" class="hidden space-y-5">
+                    <div class="flex justify-between items-center border-b border-cpm-border pb-3">
+                        <h3 class="font-bold text-sm text-indigo-400"><i class="fa-solid fa-gauge mr-2"></i> Panel de Control</h3>
+                        <span id="admin-role-badge" class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">Admin</span>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <h4 class="text-xs font-semibold text-gray-300">Carga Masiva de Cuentas</h4>
+                        <textarea id="bulk-accounts" placeholder="correo:contraseña (una por línea)" class="w-full h-24 bg-cpm-dark border border-cpm-border rounded-xl p-3 text-xs focus:outline-none focus:border-indigo-500 font-mono"></textarea>
+                        <button onclick="saveBulkAccounts()" class="w-full bg-emerald-600/80 hover:bg-emerald-600 py-2.5 rounded-xl text-xs font-semibold transition">Guardar Cuentas en Stock</button>
+                    </div>
+
+                    <div id="principal-admin-controls" class="space-y-3 border-t border-cpm-border pt-3 hidden">
+                        <h4 class="text-xs font-semibold text-indigo-300">Generador de Cupones (Admin Principal)</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="coupon-code" placeholder="Código (ej. VIP2026)" class="bg-cpm-dark border border-cpm-border rounded-xl px-3 py-2 text-xs focus:outline-none">
+                            <input type="number" id="coupon-uses" placeholder="Usos máx." class="bg-cpm-dark border border-cpm-border rounded-xl px-3 py-2 text-xs focus:outline-none">
+                        </div>
+                        <button onclick="createCoupon()" class="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded-xl text-xs font-semibold transition">Crear Cupón</button>
+                    </div>
+
+                    <div class="space-y-3 border-t border-cpm-border pt-3">
+                        <h4 class="text-xs font-semibold text-gray-300">Soporte Activo</h4>
+                        <div id="admin-support-list" class="space-y-2 max-h-40 overflow-y-auto pr-1 text-xs"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full border-t border-cpm-border/40 py-3 text-center text-[11px] text-gray-500">
+        <p>© 2026 CPM 1 • Cuentas Gratis de Moisés</p>
+    </footer>
+
+    <div id="modal-success" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel border border-emerald-500/40 rounded-2xl p-6 max-w-sm w-full text-center space-y-4">
+            <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-lg">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 class="font-bold text-sm text-emerald-300">¡Cuenta Reclamada con Éxito!</h3>
+            <div id="success-credentials" class="bg-cpm-dark p-3 rounded-xl font-mono text-xs text-indigo-300 select-all border border-cpm-border"></div>
+            <button onclick="closeSuccessModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 py-2.5 rounded-xl text-xs font-semibold transition">Entendido</button>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_EMAILS = {
+            principal: "pelionabella@gmail.com",
+            secondary: "Florentinot077@gmail.com"
+        };
+
+        let db = {
+            accounts: JSON.parse(localStorage.getItem('cpm_accounts')) || [],
+            coupons: JSON.parse(localStorage.getItem('cpm_coupons')) || { "VIP2026": { uses: 10, max: 10 } },
+            messages: JSON.parse(localStorage.getItem('cpm_messages')) || []
+        };
+
+        function saveData() {
+            localStorage.setItem('cpm_accounts', JSON.stringify(db.accounts));
+            localStorage.setItem('cpm_coupons', JSON.stringify(db.coupons));
+            localStorage.setItem('cpm_messages', JSON.stringify(db.messages));
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('stock-count').innerText = db.accounts.length;
+            renderChat();
+        }
+
+        function claimAccount() {
+            const code = document.getElementById('coupon-input').value.trim();
+            const resultDiv = document.getElementById('claim-result');
+            resultDiv.classList.remove('hidden');
+
+            if (!code) {
+                resultDiv.innerHTML = '<span class="text-rose-400">Por favor ingresa un código válido.</span>';
+                return;
+            }
+
+            if (db.accounts.length === 0) {
+                resultDiv.innerHTML = '<span class="text-rose-400">No hay cuentas disponibles en este momento. Intenta más tarde.</span>';
+                return;
+            }
+
+            if (!db.coupons[code] || db.coupons[code].uses <= 0) {
+                resultDiv.innerHTML = '<span class="text-rose-400">Cupón inválido o agotado.</span>';
+                return;
+            }
+
+            db.coupons[code].uses--;
+            const account = db.accounts.shift();
+            saveData();
+
+            document.getElementById('success-credentials').innerText = account;
+            document.getElementById('modal-success').classList.remove('hidden');
+            document.getElementById('coupon-input').value = '';
+            resultDiv.classList.add('hidden');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('modal-success').classList.add('hidden');
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            db.messages.push({ sender: 'Usuario', text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+            input.value = '';
+            saveData();
+        }
+
+        function renderChat() {
+            const chatContainer = document.getElementById('chat-messages');
+            chatContainer.innerHTML = db.messages.length === 0 ? '<p class="text-gray-500 text-center py-4">No hay mensajes aún. Escribe abajo.</p>' : '';
+            
+            db.messages.forEach((msg, index) => {
+                const isAdmin = msg.sender.includes('Admin');
+                chatContainer.innerHTML += `
+                    <div class="flex flex-col ${isAdmin ? 'items-end' : 'items-start'}">
+                        <span class="text-[10px] text-gray-500 mb-0.5">${msg.sender} • ${msg.time}</span>
+                        <div class="bg-${isAdmin ? 'indigo-950/60 border-indigo-500/30' : 'cpm-border'} border rounded-xl px-3 py-2 max-w-[85%] text-xs">
+                            ${msg.text}
+                        </div>
+                    </div>
+                `;
+            });
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            renderAdminSupport();
+        }
+
+        function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); }
+        function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
+
+        function verifyAdmin() {
+            const pin = document.getElementById('admin-pin').value.trim();
+            let role = '';
+            if (pin === 'pelionabella' || pin === '1234') role = 'principal';
+            else if (pin === 'Florentinot077' || pin === '5678') role = 'secondary';
+
+            if (role) {
+                document.getElementById('admin-login-view').classList.add('hidden');
+                document.getElementById('admin-panel-view').classList.remove('hidden');
+                if(role === 'principal') {
+                    document.getElementById('principal-admin-controls').classList.remove('hidden');
+                    document.getElementById('admin-role-badge').innerText = 'Admin Principal';
+                } else {
+                    document.getElementById('admin-role-badge').innerText = 'Admin Secundario';
+                }
+            } else {
+                alert('Contraseña incorrecta');
+            }
+        }
+
+        function saveBulkAccounts() {
+            const text = document.getElementById('bulk-accounts').value.trim();
+            if(!text) return;
+            const lines = text.split('\n');
+            lines.forEach(line => {
+                if(line.includes(':')) db.accounts.push(line.trim());
+            });
+            document.getElementById('bulk-accounts').value = '';
+            saveData();
+            alert('¡Cuentas agregadas con éxito al stock!');
+        }
+
+        function createCoupon() {
+            const code = document.getElementById('coupon-code').value.trim();
+            const uses = parseInt(document.getElementById('coupon-uses').value) || 5;
+            if(!code) return;
+            db.coupons[code] = { uses: uses, max: uses };
+            document.getElementById('coupon-code').value = '';
+            document.getElementById('coupon-uses').value = '';
+            saveData();
+            alert(`Cupón ${code} creado correctamente.`);
+        }
+
+        function renderAdminSupport() {
+            const list = document.getElementById('admin-support-list');
+            list.innerHTML = db.messages.length === 0 ? '<p class="text-gray-500">Sin mensajes de soporte.</p>' : '';
+            db.messages.forEach((m, idx) => {
+                list.innerHTML += `
+                    <div class="bg-cpm-dark p-2 rounded-lg border border-cpm-border flex justify-between items-center">
+                        <div><span class="text-indigo-400 font-bold">${m.sender}:</span> ${m.text}</div>
+                        <button onclick="replySupport(${idx})" class="text-[10px] bg-purple-600 px-2 py-1 rounded hover:bg-purple-700">Responder</button>
+                    </div>
+                `;
+            });
+        }
+
+        function replySupport(idx) {
+            const replyText = prompt("Escribe tu respuesta como Administrador (escribe /cerrado para vaciar el chat):");
+            if (replyText === null) return;
+            
+            if (replyText.trim() === '/cerrado') {
+                db.messages = [];
+                saveData();
+                alert('Historial de chat purgado con éxito.');
+                return;
+            }
+
+            if(replyText.trim()) {
+                db.messages.push({ sender: 'Admin', text: replyText, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                saveData();
+            }
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
